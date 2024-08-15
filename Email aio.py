@@ -60,35 +60,41 @@ async def check_email_inbox(session, email):
         
         await asyncio.sleep(10)  # Check every 10 seconds
 
-# Function to subscribe an email to a newsletter (You can update this part with your actual form URL and data)
-async def subscribe_to_newsletter(session, email):
-    url = "https://example-wixsite.com/_functions/newsletterSignup"  # Replace with the actual form action URL
+# Function to sign up an email for a Spotify account
+async def signup_spotify(session, email):
+    url = "https://www.spotify.com/signup"  # This should be the URL to the Spotify signup endpoint
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Referer': url,
         'Content-Type': 'application/x-www-form-urlencoded',
     }
 
     form_data = {
         'email': email,
-        'formToken': 'replace-with-actual-token-if-needed'  # Replace with actual hidden token if required
+        'password': 'RandomPassword123',  # Use a secure random password generator
+        'displayname': email.split('@')[0],  # Just using the username part of the email as the display name
+        'dob_day': '01',
+        'dob_month': '01',
+        'dob_year': '1990',
+        'gender': 'neutral',
+        'key': 'signup-key'
+        # Include all other required fields that Spotify asks for during sign-up
     }
 
     try:
         async with session.post(url, data=form_data, headers=headers) as response:
             if response.status == 200:
-                console.print(f"[green]Subscribed {email} to the newsletter successfully![/green]")
+                console.print(f"[green]Signed up {email} to Spotify successfully![/green]")
             else:
-                console.print(f"[red]Failed to subscribe {email}. Status code: {response.status}[/red]")
+                console.print(f"[red]Failed to sign up {email}. Status code: {response.status}[/red]")
     except Exception as e:
-        console.print(f"[red]Error while subscribing {email}: {e}[/red]")
+        console.print(f"[red]Error while signing up {email}: {e}[/red]")
 
-# Function to subscribe all generated emails
-async def subscribe_all_emails(emails):
+# Function to sign up all generated emails to Spotify
+async def signup_all_emails(emails):
     async with aiohttp.ClientSession() as session:
         for email in emails:
-            await subscribe_to_newsletter(session, email)
+            await signup_spotify(session, email)
 
 # Function to display credits
 def display_credits():
@@ -111,7 +117,7 @@ async def menu():
             console.print("2. Check the email inbox for new messages (single email)")
             console.print("3. Generate multiple temporary emails (Spam Mode)")
             console.print("4. Start checking all spammed emails for messages (all emails)")
-            console.print("5. Subscribe all generated emails to a newsletter")
+            console.print("5. Sign up all generated emails to Spotify")
             console.print("6. View Credits")
             console.print("7. Exit")
 
@@ -146,10 +152,10 @@ async def menu():
 
             elif choice == '5':
                 if emails:
-                    console.print(f"[yellow]Subscribing {len(emails)} emails to the newsletter...[/yellow]")
-                    await subscribe_all_emails(emails)
+                    console.print(f"[yellow]Signing up {len(emails)} emails to Spotify...[/yellow]")
+                    await signup_all_emails(emails)
                 else:
-                    console.print("[red]No emails to subscribe. Please generate some emails first using option 3.[/red]")
+                    console.print("[red]No emails to sign up. Please generate some emails first using option 3.[/red]")
 
             elif choice == '6':
                 display_credits()
